@@ -5,7 +5,7 @@
 
 BASENAME?=fawkes-robotino
 GITREMOTE?=git@git.fawkesrobotics.org:fawkes-robotino.git
-GITCOMMIT?=ef797883be3e95a5d96ad880ae603c543928b2e4
+GITCOMMIT?=9f10367fee2a82cd12b7eb40d89923416a4e161c
 GITDIR?=$(BASENAME)-$(GITCOMMIT)
 TARBALL?=$(GITDIR).tar
 IMAGE?=$(BASENAME):$(GITCOMMIT)
