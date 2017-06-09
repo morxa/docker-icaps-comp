@@ -13,10 +13,14 @@ git-archive-all.sh:
 	curl -o git-archive-all.sh https://raw.githubusercontent.com/meitar/git-archive-all.sh/af81ea772abd0fb281641af19354c9ec741593ad/git-archive-all.sh
 	chmod +x git-archive-all.sh
 
+GITDEPS=
 ifeq ($(wildcard $(GITDIR)),)
-git: git-clone
+  GITDEPS=git-clone
 else
-git: git-set-remote
+  CURRENTREMOTE=$(shell cd $(GITDIR) && git remote get-url origin)
+  ifneq ($(GITREMOTE),$(CURRENTREMOTE))
+    GITDEPS=git-set-remote
+  endif
 endif
 
 
@@ -27,7 +31,9 @@ git-set-remote:
 	cd $(GITDIR) && \
 	git remote set-url origin $(GITREMOTE)
 
-git:
+.PHONY: git-clone git-set-remote
+
+$(GITDIR): $(GITDEPS)
 	cd $(GITDIR) && \
 	echo $$PWD && \
 	git checkout $(GITCOMMIT) && \
