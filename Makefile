@@ -3,7 +3,7 @@
 # Till Hofmann, Fri 09 Jun 2017 15:21:53 CEST 15:21
 #
 
-GITDIR?=fawkes-robotino-git
+GITDIR?=fawkes-robotino
 GITREMOTE?=git@git.fawkesrobotics.org:fawkes-robotino.git
 GITCOMMIT?=ef797883be3e95a5d96ad880ae603c543928b2e4
 
@@ -35,7 +35,7 @@ git:
 
 tarball: git git-archive-all.sh
 	cd $(GITDIR) && \
-	../git-archive-all.sh .. $(GITDIR).tar
+	../git-archive-all.sh --prefix $(GITDIR)/ ../$(GITDIR).tar
 
 
 
