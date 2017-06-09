@@ -47,7 +47,7 @@ git-set-remote:
 
 $(GITDIR): $(GITDEPS)
 	cd $(GITDIR) && \
-	echo $$PWD && \
+	git fetch && \
 	git checkout $(GITCOMMIT) && \
 	git submodule update --recursive
 
