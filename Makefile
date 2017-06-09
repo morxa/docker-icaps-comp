@@ -3,11 +3,23 @@
 # Till Hofmann, Fri 09 Jun 2017 15:21:53 CEST 15:21
 #
 
-GITDIR?=fawkes-robotino
+BASENAME?=fawkes-robotino
 GITREMOTE?=git@git.fawkesrobotics.org:fawkes-robotino.git
 GITCOMMIT?=ef797883be3e95a5d96ad880ae603c543928b2e4
+GITDIR?=$(BASENAME)-$(GITCOMMIT)
+TARBALL?=$(GITDIR).tar
+IMAGE?=$(BASENAME):$(GITCOMMIT)
 
-all: tarball
+image: build
+	cd build && \
+	docker build -t $(IMAGE) .
+
+build: $(TARBALL) fawkes-pre.rosinstall Dockerfile
+	mkdir -p build
+	cp -p $(TARBALL) build/$(BASENAME).tar
+	cp -p fawkes-pre.rosinstall build/
+	cp -p Dockerfile build/
+
 
 git-archive-all.sh:
 	curl -o git-archive-all.sh https://raw.githubusercontent.com/meitar/git-archive-all.sh/af81ea772abd0fb281641af19354c9ec741593ad/git-archive-all.sh
