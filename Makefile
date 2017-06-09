@@ -39,10 +39,9 @@ $(GITDIR): $(GITDEPS)
 	git checkout $(GITCOMMIT) && \
 	git submodule update --recursive
 
-tarball: git git-archive-all.sh
+$(TARBALL): git-archive-all.sh $(GITDIR)
 	cd $(GITDIR) && \
-	../git-archive-all.sh --prefix $(GITDIR)/ ../$(GITDIR).tar
-
+	../git-archive-all.sh --prefix $(BASENAME)/ ../$(TARBALL)
 
 
 # vim:ft=make
