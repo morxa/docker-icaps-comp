@@ -14,11 +14,14 @@ image: build
 	cd build && \
 	docker build -t $(IMAGE) .
 
-build: $(TARBALL) fawkes-pre.rosinstall Dockerfile
+build: $(TARBALL) fawkes-pre.rosinstall Dockerfile run-component setup.bash localize-robot
 	mkdir -p build
 	cp -p $(TARBALL) build/$(BASENAME).tar
 	cp -p fawkes-pre.rosinstall build/
 	cp -p Dockerfile build/
+	cp -p run-component build/
+	cp -p setup.bash build/
+	cp -p localize-robot build/
 
 
 git-archive-all.sh:

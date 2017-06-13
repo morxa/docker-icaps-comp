@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -e
+
+SCRIPT_PATH=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
+source $SCRIPT_PATH/setup.bash
+
+LL=${LOG_LEVEL:-info}
+CONF=${CONFIG:-config.yaml}
+
+
+sed -i "s/input-problem-description: rcll-pddl\/pddl-problem-template.pddl/input-problem-description: rcll-pddl\/pddl-problem-template-"${TEAM_COLOR,,}".pddl/g" $FAWKES_DIR/cfg/conf.d/pddl-robot-memory.yaml
+
+if [[ $TEAM_COLOR == "MAGENTA" ]]
+then
+  COLOR_PREFIX=m
+elif [[ $TEAM_COLOR == "CYAN" ]]
+then
+  COLOR_PREFIX=c
+fi
+
+sed -i "s/stargazer/robot-${COLOR_PREFIX}1/g;s/orinoco/robot-${COLOR_PREFIX}2/g;s/agamemnon/robot-${COLOR_PREFIX}3/g" $FAWKES_DIR/cfg/conf.d/robot-memory.yaml
+sed -i "s/replica-set-members:.*/replica-set-members: \['fawkes-planner-${TEAM_COLOR,,}:27021','robot-${COLOR_PREFIX}1:27021','robot-${COLOR_PREFIX}2:27021','robot-${COLOR_PREFIX}3:27021'\]/g" $FAWKES_DIR/cfg/conf.d/robot-memory.yaml
+sed -i "s/hosts:/hosts:\n        fawkes-planner-${TEAM_COLOR,,}: fawkes-planner-${TEAM_COLOR,,}:27021/g" $FAWKES_DIR/cfg/conf.d/robot-memory.yaml
+sed -i "/plugins\/mongodb\/clients/,+50d" $FAWKES_DIR/cfg/gazsim-configurations/gazsim-config-override.yaml
+
+sed -i "s/GOALORDER|{relation:'order'/GOALORDER|{relation:'order',id:1/g" $FAWKES_DIR/src/agents/rcll-pddl/pddl-problem-template.pddl
+sed -i "s/GOALORDER|{relation:'order'/GOALORDER|{relation:'order',id:1/g" $FAWKES_DIR/src/agents/rcll-pddl/pddl-problem-template-cyan.pddl
+sed -i "s/GOALORDER|{relation:'order'/GOALORDER|{relation:'order',id:1/g" $FAWKES_DIR/src/agents/rcll-pddl/pddl-problem-template-magenta.pddl
+
+
+$FAWKES_DIR/bin/fawkes -c $CONF -L console -l $LL $META_PLUGIN || exit 42
