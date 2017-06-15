@@ -12,7 +12,7 @@ IMAGE?=$(BASENAME):$(GITCOMMIT)
 
 image: build
 	cd build && \
-	docker build -t $(IMAGE) .
+	sudo docker build -t $(IMAGE) .
 
 build: $(TARBALL) fawkes-pre.rosinstall Dockerfile run-component setup.bash localize-robot
 	mkdir -p build
