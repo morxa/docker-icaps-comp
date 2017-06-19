@@ -21,9 +21,12 @@
 Planner interface to call various planners and get the results.
 """
 import glob
+import multiprocessing
+import os
 import re
 import resource
 import subprocess
+import time
 
 class Error(Exception):
     """Base class for errors in this module."""
@@ -70,6 +73,10 @@ class Planner(object):
             return MacroFFSolEPlanner(*args, **kwargs)
         elif planner == 'marvin':
             return MarvinPlanner(*args, **kwargs)
+        elif planner == 'fd-sat':
+            return FDSatPlanner(*args, **kwargs)
+        elif planner == 'ensemble':
+            return EnsemblePlanner(*args, **kwargs)
         else:
             raise NotImplementedError
     factory = staticmethod(factory)
@@ -158,3 +165,82 @@ class MarvinPlanner(Planner):
                 return '\n'.join(stdout_lines[i:])
         raise NoSolutionFoundError
 
+class FDSatPlanner(FDPlanner):
+    """ Fast Downward which stops at the first solution. """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    def run(self):
+        proc = subprocess.Popen(
+            ['fast-downward',
+             '--overall-memory-limit', str(self.memory_limit),
+             '--overall-time-limit', str(self.time_limit),
+             '--alias', 'seq-sat-lama-2011',
+             self.domain, self.problem],
+            **self.common_kwargs
+        )
+        for plan_file in glob.glob('sas_plan*'):
+            os.remove(plan_file)
+        while True:
+            try:
+                proc.wait(timeout=1)
+                break
+            except subprocess.TimeoutExpired:
+                pass
+            if os.path.isfile('sas_plan.1'):
+                proc.terminate()
+                break
+        if os.path.isfile('sas_plan.1'):
+            proc.returncode = 0
+        return proc
+
+class EnsemblePlanner(Planner):
+    """ Ensemble planning of Fast-Forward and Fast Downward. """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ff_planner = Planner.factory('ff', *args, **kwargs)
+        self.fd_planner = Planner.factory('fd-sat', *args, **kwargs)
+        self.successful_planner = None
+    def run(self):
+        class Result(object):
+            def __init__(self):
+                returncode = None
+                stdout = ''
+        res = Result()
+        ff_process = multiprocessing.Process(target=self.ff_planner.run)
+        fd_process = multiprocessing.Process(target=self.fd_planner.run)
+        ff_process.start()
+        fd_process.start()
+        while ff_process.is_alive() and fd_process.is_alive():
+            time.sleep(0.1)
+        while True:
+            if fd_process.exitcode in \
+               self.fd_planner.get_success_return_codes():
+                print('FD was successful!')
+                self.successful_planner = self.fd_planner
+                res.returncode = fd_process.exitcode
+                # TODO stdout
+                res.stdout = 'FD was successful!'
+                ff_process.terminate()
+                return res
+            if ff_process.exitcode in \
+               self.ff_planner.get_success_return_codes():
+               print('FF was successful!')
+               self.successful_planner = self.ff_planner
+               res.returncode = ff_process.exitcode
+               res.stdout = 'FF was successful!'
+               fd_process.terminate()
+               return res
+            if not (ff_process.is_alive() or fd_process.is_alive()):
+               break
+            time.sleep(0.5)
+        res.returncode = 1
+        res.stdout = \
+                'FF failed (exit code {}), ' 'FD failed (exit code {}).'.format(
+                    ff_process.exitcode, fd_process.exitcode)
+        return res
+
+    def get_solution(self):
+        assert(self.successful_planner), 'No planner was successful'
+        return self.successful_planner.get_solution()
+    def get_success_return_codes(self):
+        return [0]
