@@ -70,9 +70,11 @@ RUN /bin/bash -c "sed -i /opt/fawkes-robotino/cfg/conf.d/gazsim.yaml \
 						-e \"s/robot-number: 4/robot-number: 1/g\" \
 						-e \"s/robot-number: 5/robot-number: 2/g\" \
 						-e \"s/robot-number: 6/robot-number: 3/g\"; \
-		done \
+		done  && \
+    sed -i /opt/fawkes-robotino/cfg/conf.d/pddl-planner.yaml -e \"s/planner: ff/planner: dbmp/\" \
 		"
 
 RUN mkdir -p /opt/rcll-sim/
 COPY run-component setup.bash localize-robot /opt/rcll-sim/
 
+COPY dbmp/* /usr/bin/
