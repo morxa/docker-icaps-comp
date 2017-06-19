@@ -22,6 +22,9 @@ build: $(TARBALL) fawkes-pre.rosinstall Dockerfile run-component setup.bash loca
 	cp -p run-component build/
 	cp -p setup.bash build/
 	cp -p localize-robot build/
+	mkdir -p build/dbmp/worker
+	cp -p dbmp/dbmp.py build/dbmp/
+	cp -p dbmp/worker/planner.py  build/dbmp/worker/
 
 
 git-archive-all.sh:
