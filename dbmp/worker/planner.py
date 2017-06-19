@@ -96,7 +96,7 @@ class FFPlanner(Planner):
     def get_solution(self):
         try:
             solution_file = open(self.problem + '.soln', 'r')
-            return solution_file.read()
+            return solution_file.read().upper()
         except IOError:
             raise NoSolutionFoundError
 
@@ -143,7 +143,7 @@ class FDPlanner(Planner):
         solutions.sort()
         if solutions:
             solution_file = open(solutions[-1], 'r')
-            return solution_file.read()
+            return solution_file.read().upper()
         else:
             raise NoSolutionFoundError
     def obeys_limits(self):
@@ -162,7 +162,7 @@ class MarvinPlanner(Planner):
         stdout_lines = self.result.stdout.splitlines()
         for i, line in enumerate(stdout_lines):
             if re.match(';+\s*Solution Found.*', line):
-                return '\n'.join(stdout_lines[i:])
+                return '\n'.join(stdout_lines[i:]).upper()
         raise NoSolutionFoundError
 
 class FDSatPlanner(FDPlanner):
