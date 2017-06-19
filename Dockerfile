@@ -77,4 +77,5 @@ RUN /bin/bash -c "sed -i /opt/fawkes-robotino/cfg/conf.d/gazsim.yaml \
 RUN mkdir -p /opt/rcll-sim/
 COPY run-component setup.bash localize-robot /opt/rcll-sim/
 
-COPY dbmp/* /usr/bin/
+COPY dbmp/dbmp.py /usr/bin/
+COPY dbmp/worker/planner.py /usr/lib64/python3.5/worker/planner.py
