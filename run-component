@@ -31,7 +31,7 @@ sed -i "s/GOALORDER|{relation:'order'/GOALORDER|{relation:'order',id:1/g" $FAWKE
 echo "Waiting for MongoDB"
 MAX_TRIES=${REFBOX_MONGODB_WAIT_MAX_TRIES:-50}
 PERIOD=${REFBOX_MONGODB_WAIT_PERIOD:-1}
-for h in "mongodb-planner-${TEAM_COLOR,,}" "mongodb-${COLOR_PREFIX}1" "mongodb-${COLOR_PREFIX}2"; do
+for h in "mongodb-planner-${TEAM_COLOR,,}" "mongodb-${COLOR_PREFIX}1"; do
   TRIES=0
   REFBOX_MONGODB_HOST=$h
   REFBOX_MONGODB_PORT=27021
