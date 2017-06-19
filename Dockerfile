@@ -6,7 +6,7 @@ COPY fawkes-pre.rosinstall /opt/ros/
 
 RUN dnf copr enable thofmann/planner -y
 RUN dnf copr enable mloebach/ctemplate -y
-RUN dnf install fast-forward ctemplate-devel net-tools -y
+RUN dnf install fast-forward ctemplate-devel net-tools fast-downward -y
 
 # Get and compile ROS pre bits
 RUN /bin/bash -c "source /etc/profile && \
